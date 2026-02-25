@@ -34,7 +34,7 @@ public struct HexColorMacro: DeclarationMacro {
 
         let decl: DeclSyntax = """
             \(raw: docComment)
-            class var \(raw: name): UIColor { return \(raw: initializer) }
+            static var \(raw: name): UIColor { return \(raw: initializer) }
             """
         return [decl]
     }
@@ -75,10 +75,12 @@ private func validateHex(_ hex: String) throws {
         throw MacroError("hex 值必须以 # 开头,如 \"#FF0000\"")
     }
     let digits = hex.dropFirst()
-    guard [3, 6].contains(digits.count),
-          digits.allSatisfy({ $0.isHexDigit })
-    else {
-        throw MacroError("hex 值格式无效: \"\(hex)\",应为 #RGB / #RRGGBB")
+    let invalidChars = digits.filter { !$0.isHexDigit }
+    if !invalidChars.isEmpty {
+        throw MacroError("hex 值包含非法字符: \"\(String(invalidChars))\",仅允许 0-9 A-F a-f")
+    }
+    guard [3, 6].contains(digits.count) else {
+        throw MacroError("hex 值长度无效: \"\(hex)\" (\(digits.count)位),应为 #RGB (3位) 或 #RRGGBB (6位)")
     }
 }
 

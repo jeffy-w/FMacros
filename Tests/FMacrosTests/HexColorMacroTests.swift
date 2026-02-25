@@ -17,7 +17,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// `#4D000A`
-            class var red9: UIColor {
+            static var red9: UIColor {
                 return UIColor(hexString: "#4D000A") ?? .clear
             }
             """,
@@ -32,7 +32,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// 品牌主色 (`#FFDD4C`)
-            class var brand6_normal: UIColor {
+            static var brand6_normal: UIColor {
                 return UIColor(hexString: "#FFDD4C") ?? .clear
             }
             """,
@@ -47,7 +47,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// `#333333` alpha: 0.7
-            class var gray2_A7: UIColor {
+            static var gray2_A7: UIColor {
                 return UIColor(hexString: "#333333", alpha: 0.7) ?? .clear
             }
             """,
@@ -62,7 +62,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// 灰色 70% (`#333333` alpha: 0.7)
-            class var gray2_A7: UIColor {
+            static var gray2_A7: UIColor {
                 return UIColor(hexString: "#333333", alpha: 0.7) ?? .clear
             }
             """,
@@ -77,7 +77,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// `#FFFFFF`
-            class var white1: UIColor {
+            static var white1: UIColor {
                 return UIColor(hexString: "#FFFFFF") ?? .clear
             }
             """,
@@ -92,7 +92,7 @@ final class HexColorMacroTests: XCTestCase {
             """,
             expandedSource: """
             /// `#F00`
-            class var shortRed: UIColor {
+            static var shortRed: UIColor {
                 return UIColor(hexString: "#F00") ?? .clear
             }
             """,
@@ -124,7 +124,22 @@ final class HexColorMacroTests: XCTestCase {
             #hexColor("bad", "#FF00")
             """##,
             diagnostics: [
-                DiagnosticSpec(message: ##"hex 值格式无效: "#FF00",应为 #RGB / #RRGGBB"##, line: 1, column: 1),
+                DiagnosticSpec(message: ##"hex 值长度无效: "#FF00" (4位),应为 #RGB (3位) 或 #RRGGBB (6位)"##, line: 1, column: 1),
+            ],
+            macros: macros
+        )
+    }
+
+    func testInvalidHexCharacters() throws {
+        assertMacroExpansion(
+            ##"""
+            #hexColor("bad", "#4D000A8O")
+            """##,
+            expandedSource: ##"""
+            #hexColor("bad", "#4D000A8O")
+            """##,
+            diagnostics: [
+                DiagnosticSpec(message: ##"hex 值包含非法字符: "O",仅允许 0-9 A-F a-f"##, line: 1, column: 1),
             ],
             macros: macros
         )
